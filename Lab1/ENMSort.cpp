@@ -1,6 +1,6 @@
 #include <fstream>
 #include <vector>
-
+#include "generator.cpp"
 class ENMSort
 {
 private:
@@ -210,4 +210,15 @@ std::vector<long> ENMSort::split_file(){
     fclose(fileA);
     fclose(fileB);
     return runs;
+}
+
+int main()
+{
+    long ramsize = 524288000/32;
+    generator(ramsize);
+    std::cout << "file generated" << std::endl;
+    clock_t tStart = clock();
+    ENMSort temp("./array.txt", "./temp/fileA.txt", "./temp/fileB.txt");
+    printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+    return 0;
 }

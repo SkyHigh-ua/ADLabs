@@ -1,7 +1,7 @@
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include "generator.cpp"
-
 class ENMSort
 {
 private:
@@ -169,14 +169,15 @@ std::vector<long> ENMSort::split_file(){
     unsigned long sizeoflong = sizeof(long), sizeofvector = sizeof(std::vector<long>);
     runs.push_back(0);
     int index = runs.size()-1;
-    long prev_num, num, prev_run_num=-1, ramsize = this->ramsize/4;
+    long prev_num, num, prev_run_num=-1, ramsize = this->ramsize/32;
     bool readble = true, sorted;
     FILE* file = fopen(this->initialfile, "r");
     FILE* fileA = fopen(this->file1, "w");
     FILE* fileB = fopen(this->file2, "w");
     while (readble){
         sorted = true;
-        while (sizeofvector + (sizeoflong * buffer.size()) < ramsize || readble)
+        buffer.clear();
+        while (sizeofvector + (sizeoflong * buffer.size()) < ramsize && readble)
         {
             if (fscanf(file, "%ld", &num) == 1){
                 if (buffer.size()>0){
@@ -231,6 +232,7 @@ int main()
 {
     long ramsize = 524288000;
     generator(ramsize);
+    std::cout << "file generated" << std::endl;
     ENMSort temp("./array.txt", "./temp/fileA.txt", "./temp/fileB.txt", "./temp/fileC.txt", "./temp/fileD.txt", ramsize);
     return 0;
 }
