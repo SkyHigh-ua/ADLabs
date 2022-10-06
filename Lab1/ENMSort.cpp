@@ -11,7 +11,6 @@ public:
     ENMSort(const char *filename, const char *file1, const char *file2);
     void writenum(FILE* fileA, FILE* fileB, long num, int runcount);
     std::vector<long> split_file();
-    std::vector<long> split_runs(std::vector<long> runs);
     void mergeruns(std::vector<long> runs);
     void merge(FILE* file, FILE* fileA, FILE* fileB, long numA, long numB);
     std::vector<long> identifyrun(FILE* file);
@@ -41,11 +40,11 @@ void ENMSort::merge(FILE* file, FILE* fileA, FILE* fileB, long numA, long numB){
     fscanf(fileA, "%ld", &num1);
     fscanf(fileB, "%ld", &num2);
     int i = 1, j = 1;
-    while (j <= numA && i<=numB)
+    while (i <= numA && j<=numB)
     {
         if (num1 < num2){
             fprintf(file, "%ld\n", num1);
-            if (i < numB)
+            if (i < numA)
             {
                 fscanf(fileA, "%ld", &num1);
             }
@@ -54,11 +53,11 @@ void ENMSort::merge(FILE* file, FILE* fileA, FILE* fileB, long numA, long numB){
         else if (num1 == num2){
             fprintf(file, "%ld\n", num1);
             fprintf(file, "%ld\n", num2);
-            if (i < numB)
+            if (i < numA)
             {
                 fscanf(fileA, "%ld", &num1);
             }
-            if (j < numA)
+            if (j < numB)
             {
                 fscanf(fileB, "%ld", &num2);
             }
@@ -67,26 +66,26 @@ void ENMSort::merge(FILE* file, FILE* fileA, FILE* fileB, long numA, long numB){
         }
         else{
             fprintf(file, "%ld\n", num2);
-            if (j < numA)
+            if (j < numB)
             {
                 fscanf(fileB, "%ld", &num2);
             }
             j++;
         }
     }
-    while (i <= numB)
+    while (i <= numA)
     {
         fprintf(file, "%ld\n", num1);
-        if (i < numB)
+        if (i < numA)
         {
             fscanf(fileA, "%ld", &num1);
         }
         i++;
     }
-    while (j <= numA)
+    while (j <= numB)
     {
         fprintf(file, "%ld\n", num2);
-        if (j < numA)
+        if (j < numB)
         {
             fscanf(fileB, "%ld", &num2);
         }
@@ -95,70 +94,29 @@ void ENMSort::merge(FILE* file, FILE* fileA, FILE* fileB, long numA, long numB){
 }
 
 void ENMSort::mergeruns(std::vector<long> runs){
-    std::vector<long> newruns;
-    long num1;
+    long num;
     while (runs.size() > 1)
     {
-        newruns.clear();
         FILE* file = fopen(this->initialfile, "w");
         FILE* fileA = fopen(this->file1, "r");
         FILE* fileB = fopen(this->file2, "r");
         for (int i = 0; i < runs.size() - 1; i += 2)
         {
-            if (runs[i]>runs[i+1])
-            {
-                merge(file, fileA, fileB, runs[i+1], runs[i]);
-            }
-            else
-            {
-                merge(file, fileB, fileA, runs[i], runs[i+1]);
-            }
-            newruns.push_back(runs[i]+runs[i+1]);
+            merge(file, fileA, fileB, runs[i], runs[i + 1]);
         }
         if (runs.size()%2 == 1)
         {
             for (int i = 0; i < runs[runs.size() - 1]; i++)
             {
-                fscanf(fileA, "%ld", &num1);
-                fprintf(file, "%ld\n", num1);
+                fscanf(fileA, "%ld", &num);
+                fprintf(file, "%ld\n", num);
             }
-            newruns.push_back(runs[runs.size() - 1]);
         }
-        runs = newruns;
         fclose(file);
         fclose(fileA);
         fclose(fileB);
-        split_runs(runs);
+        runs = split_file();
     }
-}
-
-std::vector<long> ENMSort::split_runs(std::vector<long> runs){
-    std::vector<long> newruns;
-    int i = 0, index = 0;
-    long num, prev_run_num = -1;
-    FILE* file = fopen(this->initialfile, "r");
-    FILE* fileA = fopen(this->file1, "w");
-    FILE* fileB = fopen(this->file2, "w");
-    while (fscanf(file, "%ld", &num) == 1){
-        if (i == runs[index]){ 
-            if (prev_run_num <= num && prev_run_num != -1){
-                newruns[index-1] = runs[index-1] + runs[index+1];
-                index++; 
-                i = 0;
-            }
-            else {
-                newruns.push_back(runs[index]);
-                index++; 
-                i = 0;
-            }
-        }
-        writenum(fileA, fileB, num, index+1);
-        i++;
-    }
-    fclose(file);
-    fclose(fileA);
-    fclose(fileB);
-    return newruns;
 }
 
 std::vector<long> ENMSort::split_file(){
@@ -214,9 +172,9 @@ std::vector<long> ENMSort::split_file(){
 
 int main()
 {
-    long ramsize = 524288000/32;
+    long ramsize = 524288000/64;
     generator(ramsize);
-    std::cout << "file generated" << std::endl;
+    printf("Time taken: file generated\n");
     clock_t tStart = clock();
     ENMSort temp("./array.txt", "./temp/fileA.txt", "./temp/fileB.txt");
     printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
