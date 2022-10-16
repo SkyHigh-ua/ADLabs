@@ -38,6 +38,4 @@ class RBFS:
             successors[0] = (best_node.eval_func, successors[0][1], best_node)
 
             if result:
-                break
-
-        return result, None
+                return result, None
