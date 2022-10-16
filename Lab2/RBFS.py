@@ -20,13 +20,13 @@ class RBFS:
             return None, maxsize
 
         for child in children:
-            successors.append((child.eval_func, len(children)-1, child))
+            successors.append((child.eval_func, child))
 
         while len(successors):
 
             successors.sort(key=lambda x: x[0])
 
-            best_node = successors[0][2]
+            best_node = successors[0][1]
 
             if best_node.eval_func > f_limit:
                 return None, best_node.eval_func
@@ -35,7 +35,8 @@ class RBFS:
 
             result, best_node.eval_func = self.RBFS_search(best_node, min(f_limit, alt))
 
-            successors[0] = (best_node.eval_func, successors[0][1], best_node)
+            successors[0] = (best_node.eval_func, best_node)
 
             if result:
                 return result, None
+        return result, None

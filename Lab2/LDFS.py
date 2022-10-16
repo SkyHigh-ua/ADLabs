@@ -29,3 +29,4 @@ class LDFS:
                 result = self.LDFS_search(child, depth-1)
                 if result:
                     return result
+        return result
