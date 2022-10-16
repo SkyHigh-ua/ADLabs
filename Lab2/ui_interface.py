@@ -101,7 +101,7 @@ class Ui_MainWindow(object):
         self.MaxDepth = QSpinBox(self.Options)
         self.MaxDepth.setObjectName(u"MaxDepth")
         self.MaxDepth.setMinimum(1)
-        self.MaxDepth.setMaximum(999)
+        self.MaxDepth.setMaximum(100)
 
         self.gridLayout.addWidget(self.MaxDepth, 3, 2, 1, 1)
 
